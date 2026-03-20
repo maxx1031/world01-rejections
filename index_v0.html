@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>1000 Rejections</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cabin+Sketch:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@300&family=ZCOOL+KuaiLe&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cabin+Sketch:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@300&display=swap');
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -38,22 +38,23 @@ canvas#starfield {
 .counter-number {
   font-family: 'Cabin Sketch', cursive;
   font-weight: 700;
-  font-size: clamp(100px, 25vw, 260px);
-  color: #f5c832;
+  font-size: clamp(80px, 18vw, 180px);
+  color: #c8a44e;
   line-height: 1;
   letter-spacing: 0.02em;
-  opacity: 0.95;
+  opacity: 0.9;
   transition: opacity 0.3s ease;
 }
 
 .counter-label {
-  font-family: 'ZCOOL KuaiLe', cursive;
-  font-weight: 400;
-  font-size: clamp(16px, 3vw, 28px);
-  color: #3a7bf7;
-  opacity: 0.8;
-  margin-top: 12px;
-  letter-spacing: 0.1em;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(13px, 1.8vw, 18px);
+  color: #c8a44e;
+  opacity: 0.35;
+  margin-top: 8px;
+  letter-spacing: 0.15em;
 }
 
 .add-btn {
@@ -102,16 +103,16 @@ canvas#starfield {
   display: block;
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(245, 200, 50, 0.15);
+  border-bottom: 1px solid rgba(200, 164, 78, 0.15);
   padding: 12px 0;
-  font-family: 'ZCOOL KuaiLe', cursive;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 16px;
-  font-weight: 400;
-  color: rgba(245, 200, 50, 0.7);
+  font-weight: 300;
+  color: rgba(200, 164, 78, 0.7);
   outline: none;
   letter-spacing: 0.02em;
 }
-.input-field::placeholder { color: rgba(245, 200, 50, 0.2); }
+.input-field::placeholder { color: rgba(200, 164, 78, 0.2); font-style: italic; }
 
 .input-hint {
   max-width: 480px;
@@ -148,11 +149,11 @@ canvas#starfield {
   bottom: 44px;
   left: 40px;
   z-index: 10;
-  font-family: 'ZCOOL KuaiLe', cursive;
-  font-weight: 400;
-  font-size: 13px;
-  color: rgba(58, 123, 247, 0.15);
-  letter-spacing: 0.05em;
+  font-family: 'DM Mono', monospace;
+  font-weight: 300;
+  font-size: 11px;
+  color: rgba(200, 164, 78, 0.12);
+  letter-spacing: 0.08em;
 }
 
 .made-it {
@@ -160,22 +161,23 @@ canvas#starfield {
   top: 32px;
   right: 36px;
   z-index: 20;
-  font-family: 'ZCOOL KuaiLe', cursive;
-  font-size: 16px;
-  font-weight: 400;
-  color: rgba(58, 123, 247, 0);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-weight: 300;
+  font-style: italic;
+  color: rgba(200, 164, 78, 0);
   cursor: default;
   transition: color 0.6s ease;
   letter-spacing: 0.05em;
   pointer-events: none;
 }
 .made-it.visible {
-  color: rgba(58, 123, 247, 0.15);
+  color: rgba(200, 164, 78, 0.1);
   pointer-events: all;
   cursor: pointer;
 }
 .made-it.visible:hover {
-  color: rgba(58, 123, 247, 0.7);
+  color: rgba(200, 164, 78, 0.45);
 }
 
 .confirm-overlay {
@@ -200,13 +202,13 @@ canvas#starfield {
 .confirm-title {
   font-family: 'Cabin Sketch', cursive;
   font-weight: 700;
-  font-size: 72px;
-  color: #f5c832;
+  font-size: 48px;
+  color: #c8a44e;
   margin-bottom: 8px;
 }
 .confirm-sub {
-  font-family: 'ZCOOL KuaiLe', cursive;
-  font-size: 18px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
   font-weight: 300;
   font-style: italic;
   color: rgba(200, 164, 78, 0.5);
@@ -219,9 +221,10 @@ canvas#starfield {
   justify-content: center;
 }
 .confirm-buttons button {
-  font-family: 'ZCOOL KuaiLe', cursive;
-  font-size: 16px;
-  font-weight: 400;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  font-weight: 300;
+  font-style: italic;
   padding: 10px 28px;
   border-radius: 24px;
   cursor: pointer;
@@ -292,10 +295,11 @@ canvas#starfield {
 .shelf-panel.active { transform: translateY(0); opacity: 1; pointer-events: all; }
 
 .shelf-title {
-  font-family: 'ZCOOL KuaiLe', cursive;
-  font-size: 16px;
-  font-weight: 400;
-  color: rgba(58, 123, 247, 0.4);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-weight: 300;
+  font-style: italic;
+  color: rgba(200, 164, 78, 0.25);
   margin-bottom: 16px;
   letter-spacing: 0.08em;
   text-align: center;
@@ -361,9 +365,10 @@ canvas#starfield {
   position: absolute;
   top: 24px;
   right: 32px;
-  font-family: 'ZCOOL KuaiLe', cursive;
-  font-size: 14px;
-  color: rgba(58, 123, 247, 0.25);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 12px;
+  font-style: italic;
+  color: rgba(200, 164, 78, 0.2);
   cursor: pointer;
   transition: color 0.3s ease;
   background: none;
@@ -378,7 +383,7 @@ canvas#starfield {
 
 <div class="counter">
   <div class="counter-number" id="count">0</div>
-  <div class="counter-label">次被拒绝</div>
+  <div class="counter-label">rejections collected</div>
 </div>
 
 <button class="add-btn" id="addBtn" aria-label="Add rejection">
@@ -388,25 +393,25 @@ canvas#starfield {
   </svg>
 </button>
 
-<div class="made-it" id="madeIt">我做到了</div>
+<div class="made-it" id="madeIt">I made it</div>
 
 <div class="input-bar" id="inputBar">
   <input class="input-field" id="inputField"
-    type="text" placeholder="这次，被拒绝了什么？"
+    type="text" placeholder="this time, what was the rejection?"
     maxlength="120" autocomplete="off">
-  <div class="input-hint">回车保存 · esc跳过</div>
+  <div class="input-hint">enter to save · esc to skip</div>
 </div>
 
 <div class="tooltip" id="tooltip"></div>
-<div class="tagline">收集1000次拒绝</div>
+<div class="tagline">DELETE your fear of rejection</div>
 
 <div class="confirm-overlay" id="confirmOverlay">
   <div class="confirm-box">
     <div class="confirm-title" id="confirmCount">0</div>
-    <div class="confirm-sub" id="confirmSub">次被拒绝<br>封存它们？</div>
+    <div class="confirm-sub" id="confirmSub">rejections collected<br>seal them in a jar?</div>
     <div class="confirm-buttons">
-      <button class="btn-seal" id="btnSeal">封存</button>
-      <button class="btn-cancel" id="btnCancel">还没呢</button>
+      <button class="btn-seal" id="btnSeal">seal it</button>
+      <button class="btn-cancel" id="btnCancel">not yet</button>
     </div>
   </div>
 </div>
@@ -417,8 +422,8 @@ canvas#starfield {
 </div>
 
 <div class="shelf-panel" id="shelfPanel">
-  <button class="shelf-close" id="shelfClose">关闭</button>
-  <div class="shelf-title">你的收藏</div>
+  <button class="shelf-close" id="shelfClose">close</button>
+  <div class="shelf-title">your collection</div>
   <div class="shelf-jars" id="shelfJars"></div>
 </div>
 
@@ -707,7 +712,7 @@ function finishSeal() {
 }
 
 function updateShelf() {
-  shelfCountEl.textContent = jars.length + ' 个瓶子';
+  shelfCountEl.textContent = jars.length + (jars.length === 1 ? ' jar' : ' jars');
   shelfJars.innerHTML = '';
 
   jars.forEach((jar, i) => {
@@ -743,7 +748,7 @@ function updateShelf() {
 
     const label = document.createElement('div');
     label.className = 'jar-label';
-    label.textContent = jar.count + '次 · ' + formatDate(jar.startDate);
+    label.textContent = jar.count + ' · ' + formatDate(jar.startDate);
 
     el.appendChild(cap);
     el.appendChild(visual);
