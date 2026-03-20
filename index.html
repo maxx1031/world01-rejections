@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1000 Rejections</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cabin+Sketch:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@300&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #060a1a;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  cursor: default;
+  user-select: none;
+}
+
+canvas#starfield {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+}
+
+.counter {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  text-align: center;
+  pointer-events: none;
+}
+
+.counter-number {
+  font-family: 'Cabin Sketch', cursive;
+  font-weight: 700;
+  font-size: clamp(80px, 18vw, 180px);
+  color: #c8a44e;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+}
+
+.counter-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(13px, 1.8vw, 18px);
+  color: #c8a44e;
+  opacity: 0.35;
+  margin-top: 8px;
+  letter-spacing: 0.15em;
+}
+
+.add-btn {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  z-index: 20;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(200, 164, 78, 0.3);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.4s ease, transform 0.2s ease;
+}
+.add-btn:hover { border-color: rgba(200, 164, 78, 0.6); transform: scale(1.05); }
+.add-btn:active { transform: scale(0.95); }
+.add-btn svg {
+  width: 20px; height: 20px;
+  stroke: rgba(200, 164, 78, 0.5);
+  stroke-width: 1.5;
+  transition: stroke 0.4s ease;
+}
+.add-btn:hover svg { stroke: rgba(200, 164, 78, 0.8); }
+
+.input-bar {
+  position: fixed;
+  bottom: 0; left: 0; width: 100%;
+  z-index: 30;
+  padding: 24px 40px 32px;
+  background: linear-gradient(transparent, rgba(6, 10, 26, 0.95) 40%);
+  transform: translateY(100%);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  pointer-events: none;
+}
+.input-bar.active { transform: translateY(0); opacity: 1; pointer-events: all; }
+
+.input-field {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: block;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(200, 164, 78, 0.15);
+  padding: 12px 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  font-weight: 300;
+  color: rgba(200, 164, 78, 0.7);
+  outline: none;
+  letter-spacing: 0.02em;
+}
+.input-field::placeholder { color: rgba(200, 164, 78, 0.2); font-style: italic; }
+
+.input-hint {
+  max-width: 480px;
+  margin: 8px auto 0;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 300;
+  color: rgba(200, 164, 78, 0.15);
+  letter-spacing: 0.05em;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 25;
+  padding: 8px 14px;
+  background: rgba(6, 10, 26, 0.92);
+  border: 1px solid rgba(200, 164, 78, 0.1);
+  border-radius: 4px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  font-weight: 300;
+  font-style: italic;
+  color: rgba(200, 164, 78, 0.5);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  max-width: 240px;
+  line-height: 1.4;
+}
+.tooltip.visible { opacity: 1; }
+
+.tagline {
+  position: fixed;
+  bottom: 44px;
+  left: 40px;
+  z-index: 10;
+  font-family: 'DM Mono', monospace;
+  font-weight: 300;
+  font-size: 11px;
+  color: rgba(200, 164, 78, 0.12);
+  letter-spacing: 0.08em;
+}
+
+.made-it {
+  position: fixed;
+  top: 32px;
+  right: 36px;
+  z-index: 20;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-weight: 300;
+  font-style: italic;
+  color: rgba(200, 164, 78, 0);
+  cursor: default;
+  transition: color 0.6s ease;
+  letter-spacing: 0.05em;
+  pointer-events: none;
+}
+.made-it.visible {
+  color: rgba(200, 164, 78, 0.1);
+  pointer-events: all;
+  cursor: pointer;
+}
+.made-it.visible:hover {
+  color: rgba(200, 164, 78, 0.45);
+}
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(6, 10, 26, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+.confirm-overlay.active { opacity: 1; pointer-events: all; }
+
+.confirm-box {
+  text-align: center;
+  max-width: 360px;
+  padding: 40px;
+}
+.confirm-title {
+  font-family: 'Cabin Sketch', cursive;
+  font-weight: 700;
+  font-size: 48px;
+  color: #c8a44e;
+  margin-bottom: 8px;
+}
+.confirm-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  font-weight: 300;
+  font-style: italic;
+  color: rgba(200, 164, 78, 0.5);
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+.confirm-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+.confirm-buttons button {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  font-weight: 300;
+  font-style: italic;
+  padding: 10px 28px;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.05em;
+}
+.btn-seal {
+  background: rgba(200, 164, 78, 0.15);
+  border: 1px solid rgba(200, 164, 78, 0.3);
+  color: #c8a44e;
+}
+.btn-seal:hover {
+  background: rgba(200, 164, 78, 0.25);
+  border-color: rgba(200, 164, 78, 0.5);
+}
+.btn-cancel {
+  background: transparent;
+  border: 1px solid rgba(200, 164, 78, 0.1);
+  color: rgba(200, 164, 78, 0.3);
+}
+.btn-cancel:hover {
+  border-color: rgba(200, 164, 78, 0.25);
+  color: rgba(200, 164, 78, 0.5);
+}
+
+.shelf-toggle {
+  position: fixed;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 6px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(200, 164, 78, 0.08);
+  background: rgba(6, 10, 26, 0.6);
+  transition: border-color 0.3s ease;
+}
+.shelf-toggle:hover { border-color: rgba(200, 164, 78, 0.25); }
+.shelf-toggle svg {
+  width: 14px; height: 14px;
+  stroke: rgba(200, 164, 78, 0.3);
+  stroke-width: 1.5;
+  fill: none;
+}
+.shelf-toggle span {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 300;
+  color: rgba(200, 164, 78, 0.25);
+  letter-spacing: 0.05em;
+}
+
+.shelf-panel {
+  position: fixed;
+  bottom: 0; left: 0; width: 100%;
+  z-index: 40;
+  background: linear-gradient(transparent, rgba(6, 10, 26, 0.97) 30%);
+  padding: 60px 40px 36px;
+  transform: translateY(100%);
+  opacity: 0;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+  pointer-events: none;
+}
+.shelf-panel.active { transform: translateY(0); opacity: 1; pointer-events: all; }
+
+.shelf-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-weight: 300;
+  font-style: italic;
+  color: rgba(200, 164, 78, 0.25);
+  margin-bottom: 16px;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+.shelf-jars {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.shelf-jar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: default;
+  transition: transform 0.2s ease;
+}
+.shelf-jar:hover { transform: translateY(-3px); }
+.jar-visual {
+  width: 40px;
+  height: 52px;
+  border: 1px solid rgba(200, 164, 78, 0.2);
+  border-radius: 4px 4px 8px 8px;
+  position: relative;
+  overflow: hidden;
+}
+.jar-cap {
+  width: 32px;
+  height: 6px;
+  background: rgba(200, 164, 78, 0.2);
+  border-radius: 2px 2px 0 0;
+  margin: 0 auto;
+}
+.jar-fill {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(200, 164, 78, 0.15);
+  transition: height 0.3s ease;
+}
+.jar-dots {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.jar-dot {
+  position: absolute;
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: rgba(255, 210, 60, 0.6);
+}
+.jar-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  font-weight: 300;
+  color: rgba(200, 164, 78, 0.3);
+  letter-spacing: 0.03em;
+  text-align: center;
+  max-width: 72px;
+  line-height: 1.3;
+}
+.shelf-close {
+  position: absolute;
+  top: 24px;
+  right: 32px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 12px;
+  font-style: italic;
+  color: rgba(200, 164, 78, 0.2);
+  cursor: pointer;
+  transition: color 0.3s ease;
+  background: none;
+  border: none;
+}
+.shelf-close:hover { color: rgba(200, 164, 78, 0.5); }
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+
+<div class="counter">
+  <div class="counter-number" id="count">0</div>
+  <div class="counter-label">rejections collected</div>
+</div>
+
+<button class="add-btn" id="addBtn" aria-label="Add rejection">
+  <svg viewBox="0 0 24 24" fill="none">
+    <line x1="12" y1="5" x2="12" y2="19"/>
+    <line x1="5" y1="12" x2="19" y2="12"/>
+  </svg>
+</button>
+
+<div class="made-it" id="madeIt">I made it</div>
+
+<div class="input-bar" id="inputBar">
+  <input class="input-field" id="inputField"
+    type="text" placeholder="this time, what was the rejection?"
+    maxlength="120" autocomplete="off">
+  <div class="input-hint">enter to save · esc to skip</div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+<div class="tagline">DELETE your fear of rejection</div>
+
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirmCount">0</div>
+    <div class="confirm-sub" id="confirmSub">rejections collected<br>seal them in a jar?</div>
+    <div class="confirm-buttons">
+      <button class="btn-seal" id="btnSeal">seal it</button>
+      <button class="btn-cancel" id="btnCancel">not yet</button>
+    </div>
+  </div>
+</div>
+
+<div class="shelf-toggle" id="shelfToggle">
+  <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+  <span id="shelfCount">0 jars</span>
+</div>
+
+<div class="shelf-panel" id="shelfPanel">
+  <button class="shelf-close" id="shelfClose">close</button>
+  <div class="shelf-title">your collection</div>
+  <div class="shelf-jars" id="shelfJars"></div>
+</div>
+
+<script>
+const canvas = document.getElementById('starfield');
+const ctx = canvas.getContext('2d');
+const countEl = document.getElementById('count');
+const addBtn = document.getElementById('addBtn');
+const inputBar = document.getElementById('inputBar');
+const inputField = document.getElementById('inputField');
+const tooltipEl = document.getElementById('tooltip');
+const madeItEl = document.getElementById('madeIt');
+const confirmOverlay = document.getElementById('confirmOverlay');
+const confirmCountEl = document.getElementById('confirmCount');
+const btnSeal = document.getElementById('btnSeal');
+const btnCancel = document.getElementById('btnCancel');
+const shelfToggle = document.getElementById('shelfToggle');
+const shelfPanel = document.getElementById('shelfPanel');
+const shelfJars = document.getElementById('shelfJars');
+const shelfClose = document.getElementById('shelfClose');
+const shelfCountEl = document.getElementById('shelfCount');
+
+let W, H, dpr;
+let clusters = [];
+let count = 0;
+let roundStart = new Date();
+let pendingCluster = null;
+let animating = false;
+let idleTimer = null;
+let jars = [];
+let sealing = false;
+
+function resize() {
+  dpr = window.devicePixelRatio || 1;
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resize);
+resize();
+
+function rand(a, b) { return a + Math.random() * (b - a); }
+function randInt(a, b) { return Math.floor(rand(a, b + 1)); }
+function pick(arr) { return arr[randInt(0, arr.length - 1)]; }
+
+const PALETTES = [
+  { r: 255, g: 210, b: 50 },
+  { r: 255, g: 190, b: 30 },
+  { r: 250, g: 230, b: 90 },
+  { r: 240, g: 170, b: 20 },
+  { r: 255, g: 240, b: 140 },
+  { r: 230, g: 160, b: 30 },
+  { r: 255, g: 220, b: 70 },
+  { r: 245, g: 200, b: 60 },
+];
+
+function drawStar(cx, cy, points, outerR, innerR, rot) {
+  ctx.beginPath();
+  for (let i = 0; i < points * 2; i++) {
+    const r = i % 2 === 0 ? outerR : innerR;
+    const a = (Math.PI * i) / points - Math.PI / 2 + rot;
+    const x = cx + r * Math.cos(a);
+    const y = cy + r * Math.sin(a);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+}
+
+function createCluster(text) {
+  const margin = 60;
+  const safeCx = W / 2, safeCy = H / 2;
+  let cx, cy, attempts = 0;
+  do {
+    cx = rand(margin, W - margin);
+    cy = rand(margin, H - margin);
+    attempts++;
+  } while (Math.abs(cx - safeCx) < 140 && Math.abs(cy - safeCy) < 90 && attempts < 40);
+
+  const numStars = randInt(4, 8);
+  const numDust = randInt(6, 14);
+  const spread = rand(18, 35);
+  const born = performance.now();
+
+  const starItems = [];
+  for (let i = 0; i < numStars; i++) {
+    const angle = rand(0, Math.PI * 2);
+    const dist = i === 0 ? 0 : rand(3, spread);
+    const size = i === 0 ? rand(8, 16) : rand(3, 10);
+    starItems.push({
+      ox: Math.cos(angle) * dist,
+      oy: Math.sin(angle) * dist,
+      size, points: pick([4, 4, 5, 5, 5, 6]),
+      innerRatio: rand(0.35, 0.5),
+      rotation: rand(0, Math.PI),
+      color: pick(PALETTES),
+      delay: i * rand(30, 80),
+    });
+  }
+
+  const dustItems = [];
+  for (let i = 0; i < numDust; i++) {
+    const angle = rand(0, Math.PI * 2);
+    const dist = rand(spread * 0.5, spread * 2.5);
+    dustItems.push({
+      ox: Math.cos(angle) * dist,
+      oy: Math.sin(angle) * dist,
+      size: rand(0.5, 2),
+      color: pick(PALETTES),
+      delay: rand(0, 200),
+    });
+  }
+
+  const cluster = {
+    cx, cy, text: text || '', born,
+    stars: starItems, dust: dustItems,
+    twinkleOffset: rand(0, Math.PI * 2),
+    twinkleSpeed: rand(0.4, 0.9),
+    fadeOutStart: null,
+  };
+
+  clusters.push(cluster);
+  count++;
+  countEl.textContent = count;
+  countEl.style.opacity = '1';
+  setTimeout(() => { countEl.style.opacity = '0.9'; }, 150);
+
+  if (count >= 3) madeItEl.classList.add('visible');
+
+  if (!animating) {
+    animating = true;
+    stopIdle();
+    requestAnimationFrame(draw);
+  }
+
+  return cluster;
+}
+
+function render(now) {
+  ctx.clearRect(0, 0, W, H);
+  let hasFadeIn = false;
+  let allGone = true;
+
+  for (const c of clusters) {
+    const clusterAge = now - c.born;
+    const twinkle = 1 + Math.sin(now * 0.001 * c.twinkleSpeed + c.twinkleOffset) * 0.06;
+
+    let fadeOut = 1;
+    if (c.fadeOutStart !== null) {
+      fadeOut = 1 - Math.min((now - c.fadeOutStart) / 1200, 1);
+      if (fadeOut > 0) hasFadeIn = true;
+    }
+    if (fadeOut <= 0) continue;
+    allGone = false;
+
+    for (const d of c.dust) {
+      const age = clusterAge - d.delay;
+      if (age < 0) { hasFadeIn = true; continue; }
+      const fade = Math.min(age / 600, 1);
+      const eased = 1 - Math.pow(1 - fade, 2);
+      const alpha = eased * rand(0.3, 0.7) * twinkle * fadeOut;
+      if (fade < 1) hasFadeIn = true;
+
+      ctx.beginPath();
+      ctx.arc(c.cx + d.ox, c.cy + d.oy, d.size * eased, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${d.color.r},${d.color.g},${d.color.b},${alpha})`;
+      ctx.fill();
+    }
+
+    for (const s of c.stars) {
+      const age = clusterAge - s.delay;
+      if (age < 0) { hasFadeIn = true; continue; }
+      const fade = Math.min(age / 800, 1);
+      const eased = 1 - Math.pow(1 - fade, 3);
+      if (fade < 1) hasFadeIn = true;
+
+      const alpha = eased * twinkle * fadeOut;
+      const sz = s.size * (0.3 + eased * 0.7);
+      const px = c.cx + s.ox;
+      const py = c.cy + s.oy;
+
+      if (sz > 5) {
+        const glowR = sz * 4;
+        const grad = ctx.createRadialGradient(px, py, 0, px, py, glowR);
+        grad.addColorStop(0, `rgba(${s.color.r},${s.color.g},${s.color.b},${alpha * 0.3})`);
+        grad.addColorStop(0.3, `rgba(${s.color.r},${s.color.g},${s.color.b},${alpha * 0.12})`);
+        grad.addColorStop(0.7, `rgba(${s.color.r},${s.color.g},${s.color.b},${alpha * 0.03})`);
+        grad.addColorStop(1, `rgba(${s.color.r},${s.color.g},${s.color.b},0)`);
+        ctx.beginPath();
+        ctx.arc(px, py, glowR, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      drawStar(px, py, s.points, sz, sz * s.innerRatio, s.rotation);
+      ctx.fillStyle = `rgb(${s.color.r},${s.color.g},${s.color.b})`;
+      ctx.fill();
+      ctx.restore();
+
+      if (sz > 4) {
+        ctx.save();
+        ctx.globalAlpha = alpha * 0.6;
+        drawStar(px, py, s.points, sz * 0.45, sz * s.innerRatio * 0.3, s.rotation);
+        ctx.fillStyle = '#fffde8';
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+  }
+
+  if (sealing && allGone && clusters.every(c => c.fadeOutStart !== null)) {
+    finishSeal();
+  }
+
+  return hasFadeIn;
+}
+
+function draw(now) {
+  const hasFadeIn = render(now);
+  if (hasFadeIn) {
+    requestAnimationFrame(draw);
+  } else {
+    animating = false;
+    startIdle();
+  }
+}
+
+function startIdle() {
+  if (idleTimer) return;
+  idleTimer = setInterval(() => {
+    if (clusters.length === 0) { stopIdle(); return; }
+    render(performance.now());
+  }, 120);
+}
+
+function stopIdle() {
+  if (idleTimer) { clearInterval(idleTimer); idleTimer = null; }
+}
+
+function formatDate(d) {
+  const m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return m[d.getMonth()] + ' ' + d.getDate();
+}
+
+function sealJar() {
+  sealing = true;
+  const now = performance.now();
+  for (const c of clusters) {
+    c.fadeOutStart = now + rand(0, 600);
+  }
+  if (!animating) {
+    animating = true;
+    stopIdle();
+    requestAnimationFrame(draw);
+  }
+}
+
+function finishSeal() {
+  sealing = false;
+  const jar = {
+    count,
+    startDate: new Date(roundStart),
+    endDate: new Date(),
+  };
+  jars.push(jar);
+
+  clusters = [];
+  count = 0;
+  roundStart = new Date();
+  countEl.textContent = '0';
+  madeItEl.classList.remove('visible');
+
+  stopIdle();
+  ctx.clearRect(0, 0, W, H);
+  animating = false;
+
+  updateShelf();
+  shelfToggle.style.display = 'flex';
+  shelfPanel.classList.add('active');
+  setTimeout(() => { shelfPanel.classList.remove('active'); }, 3000);
+}
+
+function updateShelf() {
+  shelfCountEl.textContent = jars.length + (jars.length === 1 ? ' jar' : ' jars');
+  shelfJars.innerHTML = '';
+
+  jars.forEach((jar, i) => {
+    const el = document.createElement('div');
+    el.className = 'shelf-jar';
+
+    const cap = document.createElement('div');
+    cap.className = 'jar-cap';
+
+    const visual = document.createElement('div');
+    visual.className = 'jar-visual';
+
+    const fill = document.createElement('div');
+    fill.className = 'jar-fill';
+    const fillPct = Math.min(jar.count / 50, 1) * 70 + 15;
+    fill.style.height = fillPct + '%';
+
+    const dots = document.createElement('div');
+    dots.className = 'jar-dots';
+    const numDots = Math.min(jar.count, 12);
+    for (let d = 0; d < numDots; d++) {
+      const dot = document.createElement('div');
+      dot.className = 'jar-dot';
+      dot.style.left = rand(4, 30) + 'px';
+      dot.style.top = rand(52 - fillPct * 0.52, 44) + 'px';
+      dot.style.opacity = rand(0.3, 0.9);
+      dot.style.width = dot.style.height = rand(2, 4) + 'px';
+      dots.appendChild(dot);
+    }
+
+    visual.appendChild(fill);
+    visual.appendChild(dots);
+
+    const label = document.createElement('div');
+    label.className = 'jar-label';
+    label.textContent = jar.count + ' · ' + formatDate(jar.startDate);
+
+    el.appendChild(cap);
+    el.appendChild(visual);
+    el.appendChild(label);
+    shelfJars.appendChild(el);
+  });
+}
+
+addBtn.addEventListener('click', () => {
+  if (sealing) return;
+  pendingCluster = createCluster('');
+  inputBar.classList.add('active');
+  setTimeout(() => inputField.focus(), 100);
+});
+
+inputField.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    if (pendingCluster) pendingCluster.text = inputField.value.trim();
+    closeInput();
+  }
+  if (e.key === 'Escape') closeInput();
+});
+
+function closeInput() {
+  inputBar.classList.remove('active');
+  inputField.value = '';
+  pendingCluster = null;
+  addBtn.focus();
+}
+
+madeItEl.addEventListener('click', () => {
+  if (count === 0 || sealing) return;
+  confirmCountEl.textContent = count;
+  confirmOverlay.classList.add('active');
+});
+
+btnSeal.addEventListener('click', () => {
+  confirmOverlay.classList.remove('active');
+  sealJar();
+});
+
+btnCancel.addEventListener('click', () => {
+  confirmOverlay.classList.remove('active');
+});
+
+shelfToggle.addEventListener('click', () => {
+  shelfPanel.classList.toggle('active');
+});
+
+shelfClose.addEventListener('click', () => {
+  shelfPanel.classList.remove('active');
+});
+
+let hoveredCluster = null;
+canvas.addEventListener('mousemove', (e) => {
+  const mx = e.clientX, my = e.clientY;
+  let closest = null, closestDist = 40;
+
+  for (const c of clusters) {
+    if (!c.text) continue;
+    const dx = mx - c.cx, dy = my - c.cy;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < closestDist) { closest = c; closestDist = dist; }
+  }
+
+  if (closest && closest !== hoveredCluster) {
+    hoveredCluster = closest;
+    tooltipEl.textContent = closest.text;
+    tooltipEl.style.left = (closest.cx > W - 280 ? closest.cx - 260 : closest.cx + 16) + 'px';
+    tooltipEl.style.top = (closest.cy - 12) + 'px';
+    tooltipEl.classList.add('visible');
+  } else if (!closest) {
+    hoveredCluster = null;
+    tooltipEl.classList.remove('visible');
+  }
+});
+
+canvas.addEventListener('mouseleave', () => {
+  hoveredCluster = null;
+  tooltipEl.classList.remove('visible');
+});
+
+document.addEventListener('keydown', (e) => {
+  if ((e.key === '+' || e.key === '=') && !inputBar.classList.contains('active') && !sealing) {
+    addBtn.click();
+  }
+});
+
+if (jars.length > 0) {
+  shelfToggle.style.display = 'flex';
+  updateShelf();
+}
+</script>
+</body>
+</html>
