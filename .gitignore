@@ -1,2 +1,9 @@
 video-script-1000-rejections.md
 Archive/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
