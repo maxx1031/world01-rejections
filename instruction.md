@@ -8,7 +8,8 @@
 
 ## Current Relevant Files
 
-- Current deploy entry: `index.html` (copied from `world01-spike-v19-glow-supabase.html`)
+- Current deploy entry: `index.html`
+- Latest popup-login snapshot: `world01-spike-v20-login-popup.html`
 - Previous deploy entry backup: `index-pre-v19-backup.html`
 - Main auth prototype: `world01-spike-v4-supabase-auth.html`
 - Debug/fix prototype: `world01-spike-v5-supabase-auth-debug.html`
@@ -23,10 +24,12 @@
 
 - Users open the HTML page from `localhost`, not `file://`.
 - Users log in with email only.
-- Login method is Supabase email OTP, not password login.
+- Login method is Supabase magic link, not password login.
 - After login, the user's rejection data is loaded from Supabase.
 - When the user adds rejection entries or seals a jar, the state is saved back to Supabase.
 - The same email should restore the same user data on the next visit.
+- The login UI is now a popup modal on top of the main page instead of a separate full-screen login page.
+- Logged-out users can stay on the main page and open the login popup from the top-right button, or it opens when they try to add a rejection.
 
 ## Supabase Implementation Notes
 
